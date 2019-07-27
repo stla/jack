@@ -1,0 +1,7 @@
+resolver: lts-13.21
+
+packages:
+- .
+
+extra-deps:
+- combinat-0.2.9.0@sha256:3daed23a2376f8d9903dc2c1c3758f1f2a0527178c81023080507e5f5ddf5b7a
