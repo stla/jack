@@ -1,5 +1,5 @@
 module Jack
-  (jack, zonal, schur)
+  (jack, zonal, schur, schur2)
   where
 import           Control.Lens                             hiding (iconcatMap)
 import           Control.Monad                            (when)
@@ -140,3 +140,49 @@ schur x lambda = do
   let loghl = logHookLengths lambda
   jck <- jack x lambda 1
   return $ jck / exp(sum loghl)
+
+--
+schur2 :: [Double] -> [Int] -> IO Double
+schur2 x lambda =
+  case _isPartition lambda of
+    False -> error "lambda is not a valid integer partition"
+    True -> do
+      arr0 <- newArray ((1,1), (_N lambda lambda, length x)) (-1)
+      sch (length x) 1 lambda arr0 (-1)
+        where
+        sch :: Int -> Int -> [Int] -> IOArray (Int,Int) Double
+               -> Double -> IO Double
+        sch m k nu arr elt
+          | nu!!0 == 0 || m == 0 = return 1
+          | length nu > m && nu!!m > 0 = return 0
+          | m == 1 = return $ x!!0^(nu!!0)
+          | elt /= -1 = readArray arr (_N lambda nu, m)
+          | otherwise = do
+            e <- readArray arr (_N lambda nu, m-1)
+            s <- sch (m-1) 1 nu arr e
+            ss <- go s k
+            when (k == 1) $ writeArray arr (_N lambda nu, m) ss
+            return ss
+            where
+            go :: Double -> Int -> IO Double
+            go ss ii
+              | length nu < ii || nu!!(ii-1) == 0 = return ss
+              | otherwise =
+                if length nu == ii && nu!!(ii-1)>0 || nu!!(ii-1) > nu!!ii
+                  then do
+                    let nu' = (element (ii-1) .~ nu!!(ii-1)-1) nu
+                    if nu!!(ii-1) > 1
+                      then do
+                        e <- readArray arr (_N lambda nu', m)
+                        schr <- sch m ii nu' arr e
+                        go (ss + x!!(m-1)*schr) (ii+1)
+                      else
+                        if nu'!!0 == 0
+                          then 
+                             go (ss + x!!(m-1)) (ii+1)
+                          else do
+                            e <- readArray arr (_N lambda nu', m-1)
+                            schr <- sch (m-1) 1 nu' arr e
+                            go (ss + x!!(m-1)*schr) (ii+1)
+                  else
+                    go ss (ii+1)
