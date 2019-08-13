@@ -1,9 +1,8 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 module Jack4
-  (schur, jack)
+  (schur, jack, zonal)
   where
 import           Control.Lens                             hiding (iconcatMap)
-import           Control.Monad                            (when)
 import           Data.Array
 import           Data.List.Index                          (iconcatMap)
 import           Data.Maybe
@@ -80,13 +79,8 @@ jack x lambda alpha =
                       fromJust $ arr ! (_N lambda nu, m)
         | otherwise = s
           where
-          s = go (jac (m-1) 0 nu nu arr 1 * beta * x!!(m-1)^(sum mu - sum nu)) (max 1 k)
-
-          -- ss <- go s (max 1 k)
-          -- when (k == 0) $ writeArray arr (_N lambda nu, m) (Just ss)
-          -- return ss
-          -- let arr' = arr // [((_N lambda nu, m), Just ss)] in
-
+          s = go (jac (m-1) 0 nu nu arr 1 * beta * x!!(m-1)^(sum mu - sum nu))
+              (max 1 k)
           go :: a -> Int -> a
           go ss ii
             | length nu < ii || nu!!(ii-1) == 0 = ss
@@ -110,14 +104,14 @@ jack x lambda alpha =
                           go (ss+jck') (ii+1)
                 else
                   go ss (ii+1)
---
--- zonal :: (Fractional a, Ord a) => [a] -> [Int] -> IO a
--- zonal x lambda = do
---   let k = sum lambda
---       jlambda = product (hookLengths lambda 2)
---       c = 2^k * realToFrac (factorial k) / jlambda
---   jck <- jack x lambda 2
---   return $ c * jck
+
+zonal :: (Fractional a, Ord a) => [a] -> [Int] -> a
+zonal x lambda = c * jck
+  where
+  k = sum lambda 
+  jlambda = product (hookLengths lambda 2)
+  c = 2^k * realToFrac (factorial k) / jlambda
+  jck = jack x lambda 2
 
 schur :: forall a. Fractional a => [a] -> [Int] -> a
 schur x lambda =
