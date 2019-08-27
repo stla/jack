@@ -178,7 +178,7 @@ schur2 x lambda =
                         go (ss + x!!(m-1)*schr) (ii+1)
                       else
                         if nu'!!0 == 0
-                          then 
+                          then
                              go (ss + x!!(m-1)) (ii+1)
                           else do
                             e <- readArray arr (_N lambda nu', m-1)

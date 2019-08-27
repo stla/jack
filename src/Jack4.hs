@@ -72,7 +72,7 @@ jack x lambda alpha =
         else product $ map (\i -> alpha * fromIntegral i + 1) [1 .. nu0-1]
       jac :: Int -> Int -> [Int] -> [Int] -> Array (Int,Int) (Maybe a) -> a -> a
       jac m k mu nu arr beta
-        | nu!!0 == 0 || m == 0 = 1
+        | null nu || nu!!0 == 0 || m == 0 = 1
         | length nu > m && nu!!m > 0 = 0
         | m == 1 = x!!0^(nu!!0) * theproduct (nu!!0)
         | k == 0 && isJust (arr ! (_N lambda nu, m)) =
@@ -108,7 +108,7 @@ jack x lambda alpha =
 zonal :: (Fractional a, Ord a) => [a] -> [Int] -> a
 zonal x lambda = c * jck
   where
-  k = sum lambda 
+  k = sum lambda
   jlambda = product (hookLengths lambda 2)
   c = 2^k * realToFrac (factorial k) / jlambda
   jck = jack x lambda 2
@@ -124,7 +124,7 @@ schur x lambda =
       arr0 = listArray ((1,1), (nll, length x)) (replicate (nll*n) Nothing)
       sch :: Int -> Int -> [Int] -> Array (Int,Int) (Maybe a) -> a
       sch m k nu arr
-        | nu!!0 == 0 || m == 0 = 1
+        | null nu || nu!!0 == 0 || m == 0 = 1
         | length nu > m && nu!!m > 0 = 0
         | m == 1 = x!!0 ^ (nu!!0)
         | isJust (arr ! (_N lambda nu, m)) = fromJust $ arr ! (_N lambda nu, m)
