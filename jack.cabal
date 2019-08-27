@@ -17,6 +17,7 @@ library
                      , Jack2
                      , Jack3
                      , Jack4
+                     , GPochhammer
   build-depends:       base >= 4.7 && < 5
                      , combinat
                      , ilist
