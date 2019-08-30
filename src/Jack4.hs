@@ -1,5 +1,5 @@
+{-# LANGUAGE BangPatterns        #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE BangPatterns #-}
 module Jack4
   (schur, jack, zonal)
   where
@@ -39,14 +39,15 @@ hookLengths lambda alpha = upper ++ lower
 _betaratio :: Fractional a => [Int] -> [Int] -> Int -> a -> a
 _betaratio kappa mu k alpha = alpha * prod1 * prod2 * prod3
   where
-  t = fromIntegral k - alpha * fromIntegral (mu !! (k-1))
+  mukm1 = mu !! (k-1)
+  t = fromIntegral k - alpha * fromIntegral mukm1
   u = zipWith (\s kap -> t + 1 - fromIntegral s + alpha * fromIntegral kap)
-               [1 .. k] (take k kappa)
+               [1 .. k] kappa -- (take k kappa)
   v = zipWith (\s m -> t - fromIntegral s + alpha * fromIntegral m)
-               [1 .. k-1] (take (k-1) mu)
-  mu' = take (mu!!(k-1)-1) (_dualPartition mu)
+               [1 .. k-1] mu -- (take (k-1) mu)
+  --mu' = take (mu!!(k-1)-1) (_dualPartition mu)
   w = zipWith (\s m -> fromIntegral m - t - alpha * fromIntegral s)
-               [1 .. mu!!(k-1)-1] mu'
+               [1 .. mukm1-1] (_dualPartition mu)
   prod1 = product $ map (\x -> x / (x+alpha-1)) u
   prod2 = product $ map (\x -> (x+alpha)/x) v
   prod3 = product $ map (\x -> (x+alpha)/x) w
@@ -123,7 +124,7 @@ schur x lambda =
       where
       nll = _N lambda lambda
       n = length x
-      arr0 = listArray ((1,1), (nll, length x)) (replicate (nll*n) Nothing)
+      arr0 = listArray ((1,1), (nll, n)) (replicate (nll*n) Nothing)
       sch :: Int -> Int -> [Int] -> Array (Int,Int) (Maybe a) -> a
       sch m k nu arr
         | null nu || nu!!0 == 0 || m == 0 = 1
