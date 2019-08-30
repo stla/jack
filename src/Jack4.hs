@@ -1,4 +1,5 @@
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE BangPatterns #-}
 module Jack4
   (schur, jack, zonal)
   where
@@ -65,7 +66,7 @@ jack x lambda alpha =
       where
       nll = _N lambda lambda
       n = length x
-      arr0 = listArray ((1,1), (nll, length x)) (replicate (nll*n) Nothing)
+      arr0 = listArray ((1,1), (nll, n)) (replicate (nll*n) Nothing)
       theproduct :: Int -> a
       theproduct nu0 = if nu0 <= 1
         then 1
@@ -82,7 +83,7 @@ jack x lambda alpha =
           s = go (jac (m-1) 0 nu nu arr 1 * beta * x!!(m-1)^(sum mu - sum nu))
               (max 1 k)
           go :: a -> Int -> a
-          go ss ii
+          go !ss ii
             | length nu < ii || nu!!(ii-1) == 0 = ss
             | otherwise =
               if length nu == ii && nu!!(ii-1) > 0 || nu!!(ii-1) > nu!!ii
@@ -132,7 +133,7 @@ schur x lambda =
           where
           s = go (sch (m-1) 1 nu arr) k
           go :: Fractional a => a -> Int -> a
-          go ss ii
+          go !ss ii
             | length nu < ii || nu!!(ii-1) == 0 = ss
             | otherwise =
               if length nu == ii && nu!!(ii-1) > 0 || nu!!(ii-1) > nu!!ii
