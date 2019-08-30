@@ -86,11 +86,12 @@ jack x lambda alpha =
           go !ss ii
             | length nu < ii || nu!!(ii-1) == 0 = ss
             | otherwise =
-              if length nu == ii && nu!!(ii-1) > 0 || nu!!(ii-1) > nu!!ii
+              let u = nu!!(ii-1) in
+              if length nu == ii && u > 0 || u > nu!!ii
                 then
-                  let nu' = (element (ii-1) .~ nu!!(ii-1)-1) nu in
+                  let nu' = (element (ii-1) .~ u-1) nu in
                   let gamma = beta * _betaratio mu nu ii alpha in
-                  if nu!!(ii-1) > 1
+                  if u > 1
                     then
                       go (ss + jac m ii mu nu' arr gamma) (ii+1)
                     else
@@ -136,10 +137,11 @@ schur x lambda =
           go !ss ii
             | length nu < ii || nu!!(ii-1) == 0 = ss
             | otherwise =
-              if length nu == ii && nu!!(ii-1) > 0 || nu!!(ii-1) > nu!!ii
+              let u = nu!!(ii-1) in
+              if length nu == ii && u > 0 || u > nu!!ii
                 then
-                  let nu' = (element (ii-1) .~ nu!!(ii-1)-1) nu in
-                  if nu!!(ii-1) > 1
+                  let nu' = (element (ii-1) .~ u-1) nu in
+                  if u > 1
                     then
                       go (ss + x!!(m-1) * sch m ii nu' arr) (ii+1)
                     else
