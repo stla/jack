@@ -1,3 +1,4 @@
+{-# LANGUAGE BangPatterns        #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 module Jack3
   (jack, zonal, schur)
@@ -88,12 +89,13 @@ jack x lambda alpha =
             return ss
             where
             go :: a -> Int -> IO a
-            go ss ii
+            go !ss ii
               | length nu < ii || nu!!(ii-1) == 0 = return ss
               | otherwise =
-                if length nu == ii && nu!!(ii-1)>0 || nu!!(ii-1)>nu!!ii
+                let u = nu!!(ii-1) in
+                if length nu == ii && u > 0 || u > nu!!ii
                   then do
-                    let nu' = (element (ii-1) .~ nu!!(ii-1)-1) nu
+                    let nu' = (element (ii-1) .~ u-1) nu
                         gamma = beta * _betaratio mu nu ii alpha
                     if nu!!(ii-1) > 1
                       then do
